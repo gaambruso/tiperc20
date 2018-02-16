@@ -95,6 +95,10 @@ func handleMessage(api *slack.Client, ev *slack.MessageEvent) {
 	// 	fmt.Printf("Leave me alone, Julian")
 	// 	return
 	// }
+	if len(matched) < 2 {
+		fmt.Printf("Leave me alone, Julian")
+		return
+	}
 	switch matched[1] {
 	case "tip":
 		if len(matched) != 4 {
