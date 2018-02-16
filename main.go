@@ -50,7 +50,7 @@ func main() {
 	flag.Parse()
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "tiperc20: https://github.com/kentaro/tiperc20")
+		fmt.Fprintf(w, "SKRT SKRT")
 	})
 	go func() {
 		log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", httpdPort), nil))
@@ -157,11 +157,11 @@ func handleWithdrawCommand(api *slack.Client, ev *slack.MessageEvent) {
 
 	if amount < 10 {
 		sendSlackMessage(api, ev.User, `
-:x: Must have at least 10 CULT before withdrawing
+:thonk: Must have at least 10 CULT before withdrawing
 		`)
 	} else if address == "" {
 		sendSlackMessage(api, ev.User, `
-:question: Please register your Ethereum address:
+:point_right: :sunglasses: :point_right: Please register your Ethereum address:
 
 > @tiperc20 register YOUR_ADDRESS
 		`)
@@ -186,7 +186,7 @@ func handleWithdrawCommand(api *slack.Client, ev *slack.MessageEvent) {
 
 			// send success message
 			// user, _ := api.GetUserInfo(ev.User)
-			message := fmt.Sprintf(":point_right: :sunglasses: :point_right: You successfully withdrew %d CULT at %x", amount, tx.Hash())
+			message := fmt.Sprintf(":point_left: :sunglasses: :point_left: You successfully withdrew %d CULT at %x", amount, tx.Hash())
 			sendSlackMessage(api, ev.User, message)
 		}
 	}
@@ -221,7 +221,7 @@ func handleTipCommand(api *slack.Client, ev *slack.MessageEvent, userID string, 
 
 	if int_amount < 1 {
 		sendSlackMessage(api, ev.User, `
-:x: Must send at least 1 CultureCoin (CULT)
+:thonk: Must send at least 1 CultureCoin (CULT)
 		`)
 		return
 	}
@@ -230,7 +230,7 @@ func handleTipCommand(api *slack.Client, ev *slack.MessageEvent, userID string, 
 
 	if sender_balance < int_amount {
 		sendSlackMessage(api, ev.User, `
-:x: Insufficient funds!
+:thonk: Insufficient funds!
 		`)
 		return
 	}
@@ -255,9 +255,11 @@ func handleTipCommand(api *slack.Client, ev *slack.MessageEvent, userID string, 
 	`, userID, recipient_balance)
 
 	if err != nil {
-		sendSlackMessage(api, ev.Channel, ":x: "+err.Error())
+		sendSlackMessage(api, ev.Channel, ":thonk: "+err.Error())
 	} else {
-		sendSlackMessage(api, ev.Channel, ":o: Updated balance")
+		user, _ := api.GetUserInfo(ev.User)
+		message := fmt.Sprintf(":point_right: :sunglasses: :point_right: %s just sent %s %d CULT!", user.Name, userID, int_amount)
+		sendSlackMessage(api, ev.Channel, message)
 	}
 
 	// update sender balance
@@ -271,10 +273,11 @@ func handleTipCommand(api *slack.Client, ev *slack.MessageEvent, userID string, 
 	`, ev.User, sender_balance)
 
 	if err != nil {
-		sendSlackMessage(api, ev.Channel, ":x: "+err.Error())
-	} else {
-		sendSlackMessage(api, ev.Channel, ":o: Updated balance")
-	}
+		sendSlackMessage(api, ev.Channel, ":thonk: "+err.Error())
+	} 
+	// else {
+	// 	sendSlackMessage(api, ev.Channel, ":o: Updated balance")
+	// }
 
 
 	// address := retrieveAddressFor(userID)
@@ -319,9 +322,9 @@ func handleRegister(api *slack.Client, ev *slack.MessageEvent, address string) {
 	`, userId, address)
 
 	if err != nil {
-		sendSlackMessage(api, ev.Channel, ":x: "+err.Error())
+		sendSlackMessage(api, ev.Channel, ":thonk: "+err.Error())
 	} else {
-		sendSlackMessage(api, ev.Channel, ":o: Registered `"+address+"`")
+		sendSlackMessage(api, ev.Channel, ":point_right: :sunglasses: :point_right: Registered `"+address+"`")
 	}
 
 	// if no stored address, give one time payment of 10 CULT
@@ -336,9 +339,9 @@ func handleRegister(api *slack.Client, ev *slack.MessageEvent, address string) {
 		`, ev.User, 10)
 
 		if err != nil {
-			sendSlackMessage(api, ev.Channel, ":x: "+err.Error())
+			sendSlackMessage(api, ev.Channel, ":thonk: "+err.Error())
 		} else {
-			sendSlackMessage(api, ev.Channel, ":o: Enjoy your free 10 CULT!")
+			sendSlackMessage(api, ev.Channel, ":point_left: :sunglasses: :point_left: Enjoy your free 10 CULT!")
 		}
 	}
 }
