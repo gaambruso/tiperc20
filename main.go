@@ -171,9 +171,9 @@ func handleWithdrawCommand(api *slack.Client, ev *slack.MessageEvent) {
 	address := retrieveAddressFor(ev.User)
 	amount := retrieveBalanceFor(ev.User)
 
-	if amount < 10 {
+	if amount < 15 {
 		sendSlackMessage(api, ev.User, `
-:thonk: Must have at least 10 CULT before withdrawing
+:thonk: Must have at least 15 CULT before withdrawing
 		`)
 	} else if address == "" {
 		sendSlackMessage(api, ev.User, `
