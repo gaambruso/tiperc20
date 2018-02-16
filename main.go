@@ -251,14 +251,20 @@ func handleTipCommand(api *slack.Client, ev *slack.MessageEvent, userID string, 
 		return
 	}
 
-	recipient_balance := retrieveBalanceFor(userID)
+	// strip <@ and > that are around the userID
+	if len(userID) < 3 {
+		sendSlackMessage(api, ev.User, `
+:thonk: Try a longer name
+		`)
+		return
+	}
+	formatted_userID := userID[2:len(userID)-1]
+	recipient_balance := retrieveBalanceFor(formatted_userID)
 
 	// if recipient_balance == 0 {
 	// 	recipient_balance = 0
 	// }
 	recipient_balance += int_amount
-
-	sender_balance -= int_amount
 
 	// update recipient balnace
 	db, _ := sql.Open("postgres", os.Getenv("DATABASE_URL"))
@@ -268,15 +274,20 @@ func handleTipCommand(api *slack.Client, ev *slack.MessageEvent, userID string, 
 		INSERT INTO balances(slack_user_id, balance) VALUES ($1, $2)
 		ON CONFLICT ON CONSTRAINT balances_slack_user_id_key
 		DO UPDATE SET balance=$2;
-	`, userID, recipient_balance)
+	`, formatted_userID, recipient_balance)
 
 	if err != nil {
 		sendSlackMessage(api, ev.Channel, ":thonk: "+err.Error())
 	} else {
 		user, _ := api.GetUserInfo(ev.User)
-		message := fmt.Sprintf(":point_right: :sunglasses: :point_right: %s just sent %s %d CULT!", user.Name, userID, int_amount)
+		message := fmt.Sprintf(":point_right: :sunglasses: :point_right: <@%s> just sent %s %d CULT!", user.Name, userID, int_amount)
 		sendSlackMessage(api, ev.Channel, message)
 	}
+
+	// prevent miscalculating costs when sending to yourself
+	sender_balance = retrieveBalanceFor(ev.User)
+
+	sender_balance -= int_amount
 
 	// update sender balance
 	db, _ = sql.Open("postgres", os.Getenv("DATABASE_URL"))
