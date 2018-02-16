@@ -90,6 +90,10 @@ func handleMessage(api *slack.Client, ev *slack.MessageEvent) {
 
 	matched := cmdRegex.FindStringSubmatch(ev.Text)
 	fmt.Println(matched)
+	if len(matched) < 2 {
+		fmt.Printf("Leave me alone, Julian")
+		return
+	}
 	switch matched[1] {
 	case "tip":
 		handleTipCommand(api, ev, matched[2])
