@@ -102,28 +102,39 @@ func handleMessage(api *slack.Client, ev *slack.MessageEvent) {
 	switch matched[1] {
 	case "tip":
 		if len(matched) != 4 {
+			sendSlackMessage(api, ev.Channel, ":thonk: Usage: tip @user [amount]")
 			fmt.Printf("Leave me alone, Julian")
 			return
 		}
 		handleTipCommand(api, ev, matched[2], matched[3])
 	case "register":
 		if len(matched) != 3 {
+			sendSlackMessage(api, ev.Channel, ":thonk: Usage: register [ETH wallet address]")
 			fmt.Printf("Leave me alone, Julian")
 			return
 		}
 		handleRegister(api, ev, matched[2])
 	case "balance":
 		if len(matched) != 2 {
+			sendSlackMessage(api, ev.Channel, ":thonk: Usage: balance")
 			fmt.Printf("Leave me alone, Julian")
 			return
 		}
 		handleBalanceCommand(api, ev)
 	case "withdraw":
 		if len(matched) != 2 {
+			sendSlackMessage(api, ev.Channel, ":thonk: Usage: withdraw")
 			fmt.Printf("Leave me alone, Julian")
 			return
 		}
 		handleWithdrawCommand(api, ev)
+	case "help":
+		if len(matched) != 2 {
+			sendSlackMessage(api, ev.Channel, ":thonk: Usage: help")
+			fmt.Printf("Leave me alone, Julian")
+			return
+		}
+		handleHelpCommand(api, ev)
 	default:
 		fmt.Printf("Unknown command")
 	}
@@ -150,6 +161,11 @@ func handleMessage(api *slack.Client, ev *slack.MessageEvent) {
 // 		}
 // 	}
 // }
+
+func handleHelpCommand(api *slack.Client, ev *slack.MessageEvent) {
+	message := ":point_right: :sunglasses: :point_right: I'm a CultureCoin (CULT) tipbot. Try 'tip', 'register', 'balance', or 'withdraw' to interact with me!"
+	sendSlackMessage(api, ev.Channel, message)
+}
 
 func handleWithdrawCommand(api *slack.Client, ev *slack.MessageEvent) {
 	address := retrieveAddressFor(ev.User)
