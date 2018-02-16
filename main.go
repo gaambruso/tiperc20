@@ -354,6 +354,8 @@ func handleRegister(api *slack.Client, ev *slack.MessageEvent, address string) {
 		sendSlackMessage(api, ev.Channel, ":point_right: :sunglasses: :point_right: Registered `"+address+"`")
 	}
 
+	amount_in_acc := retrieveBalanceFor(ev.User)
+
 	// if no stored address, give one time payment of 10 CULT
 	if stored_address == "" {
 		db, _ := sql.Open("postgres", os.Getenv("DATABASE_URL"))
@@ -363,7 +365,7 @@ func handleRegister(api *slack.Client, ev *slack.MessageEvent, address string) {
 			INSERT INTO balances(slack_user_id, balance) VALUES ($1, $2)
 			ON CONFLICT ON CONSTRAINT balances_slack_user_id_key
 			DO UPDATE SET balance=$2;
-		`, ev.User, 10)
+		`, ev.User, amount_in_acc + 10)
 
 		if err != nil {
 			sendSlackMessage(api, ev.Channel, ":thonk: "+err.Error())
